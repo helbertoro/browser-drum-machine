@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caja de Ritmos — Platzi</title>
+  <style>
+    /* ── Reset ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens ─────────────────────────────────────────────────── */
+    :root {
+      --bg:          #0f0f0f;
+      --surface:     #1a1a1a;
+      --surface-2:   #222222;
+      --border:      #2e2e2e;
+      --accent:      #23e662;
+      --accent-dim:  #17a347;
+      --text:        #e8e8e8;
+      --text-muted:  #6b6b6b;
+      --kick-color:  #e05c5c;
+      --snare-color: #e09a2e;
+      --hihat-color: #5ca0e0;
+      --bass-color:  #23e662;
+      --radius:      6px;
+      --gap:         8px;
+    }
+
+    /* ── Base ────────────────────────────────────────────────────── */
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+      gap: 20px;
+    }
+
+    /* ── Header ──────────────────────────────────────────────────── */
+    #header {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    #header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+    }
+
+    #header span {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Transport ───────────────────────────────────────────────── */
+    #transport {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Grid ────────────────────────────────────────────────────── */
+    #grid {
+      width: 100%;
+      max-width: 860px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    /* ── Controls (ADSR) ─────────────────────────────────────────── */
+    #controls {
+      width: 100%;
+      max-width: 860px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    /* ── Persistence ─────────────────────────────────────────────── */
+    #persistence {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* ── Placeholder text ─────────────────────────────────────────── */
+    .placeholder {
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      padding: 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <header id="header">
+    <h1>CAJA DE RITMOS</h1>
+    <span>Platzi · Web Audio API</span>
+  </header>
+
+  <!-- ── Transport ───────────────────────────────────────────────── -->
+  <section id="transport" aria-label="Transporte">
+    <p class="placeholder">[ transporte: SPEC-04 ]</p>
+  </section>
+
+  <!-- ── Sequencer grid ──────────────────────────────────────────── -->
+  <section id="grid" aria-label="Secuenciador">
+    <p class="placeholder">[ cuadrícula 4×8: SPEC-02 ]</p>
+  </section>
+
+  <!-- ── ADSR controls ───────────────────────────────────────────── -->
+  <section id="controls" aria-label="Controles ADSR">
+    <p class="placeholder">[ ADSR por pista: SPEC-07 ]</p>
+  </section>
+
+  <!-- ── Persistence ─────────────────────────────────────────────── -->
+  <section id="persistence" aria-label="Guardar / Cargar">
+    <p class="placeholder">[ guardar/cargar: SPEC-08 ]</p>
+  </section>
+
+  <script>
+    'use strict';
+
+    // ── state ──────────────────────────────────────────────────────
+    // Fuente única de verdad del patrón. Objeto plano, serializable.
+    const state = {
+      version: 1,
+      bpm: 120,
+      isPlaying: false,
+      currentStep: 0,
+      tracks: {
+        kick: {
+          steps:   [false, false, false, false, false, false, false, false],
+          adsr:    { a: 0.001, d: 0.15, s: 0.0, r: 0.1 },
+        },
+        snare: {
+          steps:   [false, false, false, false, false, false, false, false],
+          adsr:    { a: 0.001, d: 0.2,  s: 0.0, r: 0.15 },
+        },
+        hihat: {
+          steps:   [false, false, false, false, false, false, false, false],
+          adsr:    { a: 0.001, d: 0.05, s: 0.0, r: 0.03 },
+        },
+        bass: {
+          steps:   [false, false, false, false, false, false, false, false],
+          octaves: [1, 1, 1, 1, 1, 1, 1, 1],   // 0=baja 1=media 2=alta
+          adsr:    { a: 0.01,  d: 0.2,  s: 0.6, r: 0.2 },
+        },
+      },
+    };
+
+    // ── audio ──────────────────────────────────────────────────────
+    // Administra el AudioContext y el gain maestro.
+    // El AudioContext se crea de forma perezosa en el primer gesto.
+    const audio = {
+      ctx:    null,
+      master: null,
+
+      ensureContext() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          this.master = this.ctx.createGain();
+          this.master.gain.value = 0.8;
+          this.master.connect(this.ctx.destination);
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        return this.ctx;
+      },
+    };
+
+    // ── scheduler ─────────────────────────────────────────────────
+    // Implementado en SPEC-04.
+    const scheduler = {};
+
+    // ── playhead ──────────────────────────────────────────────────
+    // Implementado en SPEC-05.
+    const playhead = {};
+
+    // ── ui ────────────────────────────────────────────────────────
+    // Implementado en SPEC-02.
+    const ui = {};
+
+    // ── storage ───────────────────────────────────────────────────
+    // Implementado en SPEC-08.
+    const storage = {};
+  </script>
+
+</body>
+</html>
