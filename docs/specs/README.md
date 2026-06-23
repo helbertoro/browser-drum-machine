@@ -6,6 +6,40 @@ Cada spec es independiente en lo posible, pero respeta un orden de dependencias 
 
 ---
 
+## 📌 Estado de desarrollo
+
+> **Este README es el control de avance del proyecto.** Antes de empezar, lee *Estado actual* y la última entrada de la *Bitácora*. Al terminar tu trabajo, **actualiza el tablero y añade una entrada en la bitácora** para que cualquier otra persona pueda continuar desde donde lo dejaste.
+
+**Estado actual:** 🟢 Specs definidos. Sin código todavía. **Siguiente spec a tomar: `SPEC-01`.**
+
+### Tablero de progreso
+| Spec | Estado | Depende de | Responsable | PR | Últ. actualización | Notas |
+|------|--------|------------|-------------|----|--------------------|-------|
+| [SPEC-01](SPEC-01-esqueleto-audiocontext.md) · Esqueleto + AudioContext | ⬜ Pendiente | — | — | — | 2026-06-23 | Listo para tomar |
+| [SPEC-02](SPEC-02-cuadricula-secuenciador.md) · Cuadrícula UI 4×8 | ⬜ Pendiente | 01 | — | — | 2026-06-23 | Bloqueado por 01 |
+| [SPEC-03](SPEC-03-sintesis-percusion.md) · Síntesis percusión | ⬜ Pendiente | 01 | — | — | 2026-06-23 | Bloqueado por 01 |
+| [SPEC-04](SPEC-04-scheduler-transporte.md) · Scheduler + transporte | ⬜ Pendiente | 01,02,03 | — | — | 2026-06-23 | — |
+| [SPEC-05](SPEC-05-cabezal-visual.md) · Cabezal visual ±20 ms | ⬜ Pendiente | 04 | — | — | 2026-06-23 | — |
+| [SPEC-06](SPEC-06-bajo-octavas.md) · Bajo + octavas | ⬜ Pendiente | 02,03,04 | — | — | 2026-06-23 | — |
+| [SPEC-07](SPEC-07-adsr.md) · ADSR por pista | ⬜ Pendiente | 03,06 | — | — | 2026-06-23 | — |
+| [SPEC-08](SPEC-08-persistencia.md) · Persistencia localStorage | ⬜ Pendiente | todos | — | — | 2026-06-23 | Último; cierra el reto |
+
+**Leyenda de estados:** ⬜ Pendiente · 🟡 En progreso · 🔵 En revisión (PR abierto) · ✅ Hecho (merge en `main`) · ⛔ Bloqueado
+
+### Cómo continuar (handoff)
+1. Lee **Estado actual** y la última entrada de la **Bitácora**.
+2. En el **Tablero**, toma el primer spec ⬜ *Pendiente* cuyas dependencias estén ✅ *Hecho*.
+3. Márcalo 🟡 *En progreso*: pon tu nombre en *Responsable* y la fecha en *Últ. actualización*.
+4. Implementa **solo** el alcance del spec; abre PR y cámbialo a 🔵 *En revisión* con el link del PR.
+5. Tras el merge, márcalo ✅ *Hecho* y **añade una entrada en la bitácora** con: qué quedó, cualquier desvío del spec y cuál es el siguiente paso natural.
+
+### Bitácora de avance
+> Entrada más reciente arriba. Formato: `fecha — autor: qué se hizo / dónde continuar`.
+
+- **2026-06-23 — Helber Toro:** Creado el [PRD](../prd/PRD.md) y los 8 specs. Aún no hay código. **Próximo paso:** implementar `SPEC-01` — crear `index.html` con el esqueleto (namespaces `state`/`audio`/`scheduler`/`playhead`/`ui`/`storage` vacíos) y el ciclo de vida del `AudioContext`. Dejar los contenedores HTML listos para que SPEC-02 y SPEC-03 enganchen encima.
+
+---
+
 ## Convenciones compartidas
 
 ### Entregable
@@ -57,16 +91,7 @@ SPEC-01 (esqueleto + AudioContext)
    └─ SPEC-08 (persistencia localStorage)     ← requiere todo el state
 ```
 
-| Spec | Título | Depende de |
-|------|--------|------------|
-| [SPEC-01](SPEC-01-esqueleto-audiocontext.md) | Esqueleto de la app y ciclo de vida del AudioContext | — |
-| [SPEC-02](SPEC-02-cuadricula-secuenciador.md) | Cuadrícula del secuenciador (UI 4×8) | 01 |
-| [SPEC-03](SPEC-03-sintesis-percusion.md) | Síntesis de percusión (kick, snare, hi-hat) | 01 |
-| [SPEC-04](SPEC-04-scheduler-transporte.md) | Scheduler look-ahead + transporte (Play/Stop/Tempo/Clear) | 01,02,03 |
-| [SPEC-05](SPEC-05-cabezal-visual.md) | Cabezal de reproducción visual (±20 ms) | 04 |
-| [SPEC-06](SPEC-06-bajo-octavas.md) | Pista de bajo: síntesis + octavas por paso | 02,03,04 |
-| [SPEC-07](SPEC-07-adsr.md) | Controles ADSR por pista | 03,06 |
-| [SPEC-08](SPEC-08-persistencia.md) | Persistencia: Guardar/Cargar (localStorage, un slot) | todos |
+El detalle de cada spec (título, estado, dependencias, responsable) vive en el [Tablero de progreso](#tablero-de-progreso).
 
 ---
 
