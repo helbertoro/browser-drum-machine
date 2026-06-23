@@ -118,6 +118,74 @@
       letter-spacing: 0.06em;
       padding: 8px 0;
     }
+
+    /* ── Sequencer rows ──────────────────────────────────────────── */
+    .grid-row {
+      display: flex;
+      align-items: center;
+      gap: var(--gap);
+    }
+
+    .grid-label {
+      width: 60px;
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .grid-label[data-track="kick"]  { color: var(--kick-color); }
+    .grid-label[data-track="snare"] { color: var(--snare-color); }
+    .grid-label[data-track="hihat"] { color: var(--hihat-color); }
+    .grid-label[data-track="bass"]  { color: var(--bass-color); }
+
+    .grid-cells {
+      flex: 1;
+      display: flex;
+      gap: var(--gap);
+    }
+
+    /* Visual beat-group separator: extra gap before step 5 */
+    .grid-cells > *:nth-child(5) { margin-left: 8px; }
+
+    /* Step-number header */
+    .grid-step-num {
+      flex: 1;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      user-select: none;
+      padding-bottom: 4px;
+    }
+
+    .grid-step-num.beat { color: var(--text); }
+
+    /* Cells */
+    .cell {
+      flex: 1;
+      aspect-ratio: 1;
+      min-width: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 80ms ease, border-color 80ms ease, transform 60ms ease;
+    }
+
+    .cell:hover:not(.active) {
+      border-color: var(--text-muted);
+      background: #282828;
+    }
+
+    .cell:active { transform: scale(0.88); }
+
+    .grid-row[data-track="kick"]  .cell.active { background: var(--kick-color);  border-color: var(--kick-color); }
+    .grid-row[data-track="snare"] .cell.active { background: var(--snare-color); border-color: var(--snare-color); }
+    .grid-row[data-track="hihat"] .cell.active { background: var(--hihat-color); border-color: var(--hihat-color); }
+    .grid-row[data-track="bass"]  .cell.active { background: var(--bass-color);  border-color: var(--bass-color); }
   </style>
 </head>
 <body>
@@ -207,12 +275,100 @@
     const playhead = {};
 
     // ── ui ────────────────────────────────────────────────────────
-    // Implementado en SPEC-02.
-    const ui = {};
+    const ui = {
+      TRACKS: ['kick', 'snare', 'hihat', 'bass'],
+      LABELS: { kick: 'Kick', snare: 'Snare', hihat: 'Hi-hat', bass: 'Bajo' },
+
+      // Configura el event listener (una sola vez) y renderiza la grilla.
+      init() {
+        this.renderGrid();
+        document.getElementById('grid').addEventListener('click', e => {
+          const btn = e.target.closest('.cell');
+          if (!btn) return;
+          const track = btn.dataset.track;
+          const step  = parseInt(btn.dataset.step, 10);
+          state.tracks[track].steps[step] = !state.tracks[track].steps[step];
+          this.setCell(track, step);
+        });
+      },
+
+      // Reconstruye toda la grilla desde state. Llamar también tras cargar
+      // un patrón desde localStorage (SPEC-08).
+      renderGrid() {
+        const container = document.getElementById('grid');
+        container.innerHTML = '';
+
+        // Fila de números de paso — misma estructura flex que las filas de pista
+        const numRow = document.createElement('div');
+        numRow.className = 'grid-row';
+        numRow.setAttribute('aria-hidden', 'true');
+
+        const spacer = document.createElement('span');
+        spacer.className = 'grid-label';
+        numRow.appendChild(spacer);
+
+        const nums = document.createElement('div');
+        nums.className = 'grid-cells';
+        for (let i = 0; i < 8; i++) {
+          const n = document.createElement('span');
+          n.className = 'grid-step-num' + (i % 4 === 0 ? ' beat' : '');
+          n.textContent = i + 1;
+          nums.appendChild(n);
+        }
+        numRow.appendChild(nums);
+        container.appendChild(numRow);
+
+        // Filas de pista
+        this.TRACKS.forEach(track => {
+          const row = document.createElement('div');
+          row.className = 'grid-row';
+          row.dataset.track = track;
+
+          const label = document.createElement('span');
+          label.className = 'grid-label';
+          label.dataset.track = track;
+          label.textContent = this.LABELS[track];
+          row.appendChild(label);
+
+          const cells = document.createElement('div');
+          cells.className = 'grid-cells';
+
+          for (let i = 0; i < 8; i++) {
+            const isActive = state.tracks[track].steps[i];
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'cell' + (isActive ? ' active' : '');
+            btn.dataset.track = track;
+            btn.dataset.step  = i;
+            btn.setAttribute('aria-pressed', String(isActive));
+            btn.setAttribute('aria-label', `${this.LABELS[track]} paso ${i + 1}`);
+            cells.appendChild(btn);
+          }
+
+          row.appendChild(cells);
+          container.appendChild(row);
+        });
+      },
+
+      // Sincroniza el estado visual de una celda con state.
+      // Usado por el toggle de clic y por SPEC-08 tras cargar.
+      setCell(track, step) {
+        const btn = document.querySelector(
+          `.cell[data-track="${track}"][data-step="${step}"]`
+        );
+        if (!btn) return;
+        const active = state.tracks[track].steps[step];
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      },
+    };
 
     // ── storage ───────────────────────────────────────────────────
     // Implementado en SPEC-08.
     const storage = {};
+
+    // ── Init ──────────────────────────────────────────────────────
+    ui.init();
   </script>
 
 </body>

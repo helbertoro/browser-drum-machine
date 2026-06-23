@@ -10,14 +10,14 @@ Cada spec es independiente en lo posible, pero respeta un orden de dependencias 
 
 > **Este README es el control de avance del proyecto.** Antes de empezar, lee *Estado actual* y la última entrada de la *Bitácora*. Al terminar tu trabajo, **actualiza el tablero y añade una entrada en la bitácora** para que cualquier otra persona pueda continuar desde donde lo dejaste.
 
-**Estado actual:** 🟢 SPEC-01 hecho. **Siguiente spec a tomar: `SPEC-02` o `SPEC-03`** (paralelos, ambos dependen solo de 01).
+**Estado actual:** 🟢 SPEC-01 y SPEC-02 hechos. **Siguiente spec a tomar: `SPEC-03`** (síntesis percusión, depende solo de 01).
 
 ### Tablero de progreso
 | Spec | Estado | Depende de | Responsable | PR | Últ. actualización | Notas |
 |------|--------|------------|-------------|----|--------------------|-------|
 | [SPEC-01](SPEC-01-esqueleto-audiocontext.md) · Esqueleto + AudioContext | ✅ Hecho | — | Helber Toro | — | 2026-06-23 | `index.html` creado |
-| [SPEC-02](SPEC-02-cuadricula-secuenciador.md) · Cuadrícula UI 4×8 | ⬜ Pendiente | 01 ✅ | — | — | 2026-06-23 | Listo para tomar |
-| [SPEC-03](SPEC-03-sintesis-percusion.md) · Síntesis percusión | ⬜ Pendiente | 01 ✅ | — | — | 2026-06-23 | Listo para tomar (paralelo con 02) |
+| [SPEC-02](SPEC-02-cuadricula-secuenciador.md) · Cuadrícula UI 4×8 | ✅ Hecho | 01 ✅ | Helber Toro | — | 2026-06-23 | Grilla funcional, toggle + re-render ok |
+| [SPEC-03](SPEC-03-sintesis-percusion.md) · Síntesis percusión | ⬜ Pendiente | 01 ✅ | — | — | 2026-06-23 | Listo para tomar |
 | [SPEC-04](SPEC-04-scheduler-transporte.md) · Scheduler + transporte | ⬜ Pendiente | 01,02,03 | — | — | 2026-06-23 | Bloqueado hasta que 02 y 03 estén listos |
 | [SPEC-05](SPEC-05-cabezal-visual.md) · Cabezal visual ±20 ms | ⬜ Pendiente | 04 | — | — | 2026-06-23 | — |
 | [SPEC-06](SPEC-06-bajo-octavas.md) · Bajo + octavas | ⬜ Pendiente | 02,03,04 | — | — | 2026-06-23 | — |
@@ -36,6 +36,7 @@ Cada spec es independiente en lo posible, pero respeta un orden de dependencias 
 ### Bitácora de avance
 > Entrada más reciente arriba. Formato: `fecha — autor: qué se hizo / dónde continuar`.
 
+- **2026-06-23 — Helber Toro:** `SPEC-02` implementado. Grilla 4×8 renderizada desde `state`. Toggle de clic sincroniza DOM ↔ `state`. `ui.renderGrid()` idempotente (re-render completo desde `state` arbitrario, listo para SPEC-08). Evento delegado en `#grid` (sin duplicados). Separador visual de grupos de 4 pasos. Verificado con Playwright: 32 celdas, toggle on/off, re-render. **Próximo paso:** `SPEC-03` (síntesis de percusión) — depende solo de SPEC-01.
 - **2026-06-23 — Helber Toro:** `SPEC-01` implementado. Creado `index.html` con los 6 namespaces (`state`, `audio`, `scheduler`, `playhead`, `ui`, `storage`), el `state` con el modelo completo (4 pistas, ADSR defaults, octavas del bajo en 1), `audio.ensureContext()` lazy, contenedores HTML (`#header`, `#transport`, `#grid`, `#controls`, `#persistence`) y CSS base con tokens de color. **Próximo paso:** SPEC-02 (cuadrícula) y SPEC-03 (síntesis de percusión) se pueden tomar en paralelo — ambos solo dependen de 01.
 - **2026-06-23 — Helber Toro:** Creado el [PRD](../prd/PRD.md) y los 8 specs. Aún no hay código.
 
